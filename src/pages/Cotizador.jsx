@@ -609,7 +609,7 @@ function Resultado({ result, config, tipo, medidas }) {
   const desc = config?.descuento_contado_display ?? 30;
 
   const copiar = () => {
-    const texto = `🏠 Cotización Cortinas\nTipo: ${tipo}\n${medidas}\n\n💰 Precio contado/transferencia: ${fmt(result.contado)} (${desc}% OFF)\n📋 Precio de lista: ${fmt(result.lista)}\n💳 3 cuotas sin interés: ${fmt(result.cuota3)}/cuota\n💳 6 cuotas sin interés: ${fmt(result.cuota6)}/cuota\n\n✅ Consultas sin compromiso`;
+    const texto = `🏠 Cotización Cortinas\nTipo: ${tipo}\n${medidas}\n\n💰 Precio contado/transferencia: ${fmt(result.contado)} (${desc}% OFF)\n📋 Precio financiado: ${fmt(result.lista)}\n💳 3 cuotas sin interés: ${fmt(result.cuota3)}/cuota\n💳 6 cuotas sin interés: ${fmt(result.cuota6)}/cuota\n\n✅ Consultas sin compromiso`;
     navigator.clipboard.writeText(texto).then(() => {
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2500);
@@ -650,7 +650,7 @@ function Resultado({ result, config, tipo, medidas }) {
       <div className="price-row lista">
         <div className="price-row-left">
           <div className="price-icon">🏷️</div>
-          <span className="price-label">Precio de lista</span>
+          <span className="price-label">Precio financiado</span>
         </div>
         <span className="price-value">{fmt(result.lista)}</span>
       </div>
@@ -911,7 +911,6 @@ function ModuloRoller({ config }) {
   const [ancho, setAncho] = useState("");
   const [alto, setAlto] = useState("");
   const [tipo, setTipo] = useState("blackout");
-  const [margen, setMargen] = useState(80);
   const [result, setResult] = useState(null);
   const [loadingCalc, setLoadingCalc] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -934,8 +933,15 @@ function ModuloRoller({ config }) {
       setErrorMsg(`No se encontró precio para ${anchoBuscar}×${altoBuscar} cm.`);
       return;
     }
+    const precio = data.precio;
+    const recargo = config?.recargo_cuotas ?? 50;
+    const lista = precio * (1 + recargo / 100);
     setResult({
-      ...calcPrecios(data.precio, margen, config),
+      costo: precio,
+      contado: precio,
+      lista,
+      cuota3: lista / 3,
+      cuota6: lista / 6,
       anchoBuscar,
       altoBuscar,
       tipo: `Roller - ${tipo === "blackout" ? "Blackout" : "Screen"}`,
@@ -976,14 +982,6 @@ function ModuloRoller({ config }) {
               {[["blackout", "Blackout"], ["screen", "Screen"]].map(([v, l]) => (
                 <button key={v} type="button" className={`radio-btn ${tipo === v ? "active" : ""}`} onClick={() => setTipo(v)}>{l}</button>
               ))}
-            </div>
-          </div>
-
-          <div className="field-group">
-            <label>Margen de ganancia</label>
-            <div className="input-suffix">
-              <input type="number" value={margen} onChange={(e) => setMargen(parseFloat(e.target.value) || 0)} min="0" />
-              <span className="suffix-label">%</span>
             </div>
           </div>
 
