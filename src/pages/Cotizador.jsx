@@ -99,28 +99,7 @@ export default function Cotizador() {
           z-index: 100;
           box-shadow: 0 1px 0 #e5e7eb, 0 2px 16px rgba(0,0,0,0.05);
         }
-        .header-center {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
-          pointer-events: none;
-        }
-        .header-center-title {
-          font-size: 15px;
-          font-weight: 700;
-          color: #1a1a2e;
-          letter-spacing: -0.01em;
-        }
-        .header-center-sub {
-          font-size: 11px;
-          color: #9ca3af;
-          font-weight: 500;
-          letter-spacing: 0.04em;
-        }
+
         .logo img {
           height: 52px;
           width: auto;
@@ -551,10 +530,7 @@ export default function Cotizador() {
           <div className="logo">
             <img src={LOGO_SRC} alt="Insumos Roller" />
           </div>
-          <div className="header-center">
-            <span className="header-center-title">Cotizador de Cortinas</span>
-            <span className="header-center-sub">Calculá tu precio al instante</span>
-          </div>
+
           <div style={{ display: "flex", gap: "8px" }}>
             <button className="btn-admin" onClick={() => navigate("/admin")}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
