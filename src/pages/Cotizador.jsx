@@ -392,6 +392,23 @@ export default function Cotizador() {
         .price-row.cuota .price-value { font-size: 15px; }
         .cuota-sub { font-size: 11px; color: #9ca3af; font-weight: 400; margin-left: 2px; }
 
+        .btn-ojo {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          height: 30px;
+          padding: 0 12px;
+          border-radius: 20px;
+          border: 1px solid #e5e7eb;
+          background: #f9fafb;
+          color: #6b7280;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .btn-ojo:hover { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
         .btn-copiar {
           margin: 14px 22px 18px;
           height: 46px;
@@ -604,7 +621,7 @@ function calcPrecios(costo, margen, config) {
   return { costo, contado, lista, cuota3: lista / 3, cuota6: lista / 6 };
 }
 
-function Resultado({ result, config, tipo, medidas }) {
+function Resultado({ result, config, tipo, medidas, mostrarCosto = true, oculto, onToggleOculto }) {
   const [copiado, setCopiado] = useState(false);
   const desc = config?.descuento_contado_display ?? 30;
 
@@ -629,15 +646,34 @@ function Resultado({ result, config, tipo, medidas }) {
           <div className="result-header-title">Resultado</div>
           <div className="result-header-sub">Precios calculados</div>
         </div>
+        {mostrarCosto && (
+          <button className="btn-ojo" onClick={onToggleOculto} title={oculto ? "Mostrar datos internos" : "Ocultar datos internos"}>
+            {oculto ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            )}
+            {oculto ? "Mostrar" : "Ocultar"}
+          </button>
+        )}
       </div>
 
-      <div className="price-row costo">
-        <div className="price-row-left">
-          <div className="price-icon">💼</div>
-          <span className="price-label">Costo de materiales</span>
+      {mostrarCosto && !oculto && (
+        <div className="price-row costo">
+          <div className="price-row-left">
+            <div className="price-icon">💼</div>
+            <span className="price-label">Costo de materiales</span>
+          </div>
+          <span className="price-value">{fmt(result.costo)}</span>
         </div>
-        <span className="price-value">{fmt(result.costo)}</span>
-      </div>
+      )}
 
       <div className="price-row contado">
         <div className="price-row-left">
@@ -704,6 +740,7 @@ function ModuloTextiles({ precios, config }) {
   const [tela, setTela] = useState("gasa");
   const [margen, setMargen] = useState(80);
   const [result, setResult] = useState(null);
+  const [oculto, setOculto] = useState(false);
 
   const calcular = () => {
     const aCm = parseFloat(ancho);
@@ -759,16 +796,18 @@ function ModuloTextiles({ precios, config }) {
             </div>
           </div>
 
-          <div className="field-group">
-            <label>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
-              Margen de ganancia
-            </label>
-            <div className="input-suffix">
-              <input type="number" value={margen} onChange={(e) => setMargen(parseFloat(e.target.value) || 0)} min="0" />
-              <span className="suffix-label">%</span>
+          {!oculto && (
+            <div className="field-group">
+              <label>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                Margen de ganancia
+              </label>
+              <div className="input-suffix">
+                <input type="number" value={margen} onChange={(e) => setMargen(parseFloat(e.target.value) || 0)} min="0" />
+                <span className="suffix-label">%</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <button className="btn-calcular" onClick={calcular}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -791,7 +830,7 @@ function ModuloTextiles({ precios, config }) {
               <div className="desglose-row"><span className="desglose-label">Paños</span><span className="desglose-value">{result.panos}</span></div>
               <div className="desglose-row"><span className="desglose-label">Metros de riel</span><span className="desglose-value">{result.metrosRiel.toFixed(2)} m</span></div>
             </div>
-            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} />
+            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} oculto={oculto} onToggleOculto={() => setOculto(o => !o)} />
           </>
         ) : (
           <EmptyResult label="Calcular" />
@@ -812,6 +851,7 @@ function ModuloVerticales({ precios, config }) {
   const [tela, setTela] = useState("blackout_premium");
   const [margen, setMargen] = useState(80);
   const [result, setResult] = useState(null);
+  const [oculto, setOculto] = useState(false);
 
   const calcular = () => {
     const aCm = parseFloat(ancho), hCm = parseFloat(alto);
@@ -865,13 +905,15 @@ function ModuloVerticales({ precios, config }) {
             </div>
           </div>
 
-          <div className="field-group">
-            <label>Margen de ganancia</label>
-            <div className="input-suffix">
-              <input type="number" value={margen} onChange={(e) => setMargen(parseFloat(e.target.value) || 0)} min="0" />
-              <span className="suffix-label">%</span>
+          {!oculto && (
+            <div className="field-group">
+              <label>Margen de ganancia</label>
+              <div className="input-suffix">
+                <input type="number" value={margen} onChange={(e) => setMargen(parseFloat(e.target.value) || 0)} min="0" />
+                <span className="suffix-label">%</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <button className="btn-calcular" onClick={calcular}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -892,7 +934,7 @@ function ModuloVerticales({ precios, config }) {
               </div>
               <div className="desglose-row"><span className="desglose-label">Metros cuadrados</span><span className="desglose-value">{result.m2.toFixed(2)} m²</span></div>
             </div>
-            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} />
+            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} oculto={oculto} onToggleOculto={() => setOculto(o => !o)} />
           </>
         ) : (
           <EmptyResult label="Calcular" />
@@ -1015,7 +1057,7 @@ function ModuloRoller({ config }) {
               </div>
               <div className="desglose-row"><span className="desglose-label">Tabla consultada</span><span className="desglose-value">{result.anchoBuscar}×{result.altoBuscar} cm</span></div>
             </div>
-            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} />
+            <Resultado result={result} config={config} tipo={result.tipo} medidas={result.medidas} mostrarCosto={false} />
           </>
         ) : (
           <EmptyResult label="Calcular" />
